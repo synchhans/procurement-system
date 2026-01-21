@@ -5,7 +5,6 @@ $(document).ready(function () {
 
     const formatRp = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
-    // --- AJAX WRAPPER (FIXED) ---
     function apiRequest(endpoint, method = 'GET', data = null) {
         const token = sessionStorage.getItem('jwt_token');
 
@@ -21,9 +20,6 @@ $(document).ready(function () {
                 msg = xhr.responseJSON.error;
             }
 
-            // --- PERBAIKAN DI SINI ---
-            // Cek: Jika error 401 TAPI bukan dari endpoint login, baru lakukan Auto Logout.
-            // Jika error 401 dari login, itu berarti password salah, biarkan Swal muncul.
             if (xhr.status === 401 && endpoint !== '/login') {
                 Swal.fire({
                     icon: 'warning',
@@ -34,14 +30,13 @@ $(document).ready(function () {
                 }).then(() => {
                     doLogout();
                 });
-                return; // Stop, jangan lanjut ke error handling bawah
+                return;
             }
 
             if (xhr.status === 0) {
                 msg = "Gagal terhubung ke Backend (Server Mati).";
             }
 
-            // Tampilkan Pesan Error (Termasuk Password Salah)
             Swal.fire({
                 icon: 'error',
                 title: 'Gagal',
@@ -51,7 +46,6 @@ $(document).ready(function () {
         });
     }
 
-    // --- AUTH FLOW ---
     function checkAuth() {
         const token = sessionStorage.getItem('jwt_token');
         const user = JSON.parse(sessionStorage.getItem('user'));
@@ -69,7 +63,7 @@ $(document).ready(function () {
             $('#view-login').removeClass('hidden-force');
         }
 
-        // Hilangkan Preloader
+
         setTimeout(() => {
             $('#app-preloader').fadeOut(300, function () {
                 $(this).remove();
@@ -87,7 +81,6 @@ $(document).ready(function () {
     $('#link-to-register').click(e => { e.preventDefault(); $('#view-login').addClass('hidden-force'); $('#view-register').removeClass('hidden-force'); });
     $('#link-to-login').click(e => { e.preventDefault(); $('#view-register').addClass('hidden-force'); $('#view-login').removeClass('hidden-force'); });
 
-    // LOGIN HANDLE
     $('#form-login').submit(function (e) {
         e.preventDefault();
         const btn = $(this).find('button');
@@ -103,7 +96,6 @@ $(document).ready(function () {
                 sessionStorage.setItem('jwt_token', resp.token);
                 sessionStorage.setItem('user', JSON.stringify(resp.user));
 
-                // SweetAlert Sukses sebelum reload
                 Swal.fire({
                     icon: 'success',
                     title: 'Login Berhasil',
@@ -115,12 +107,10 @@ $(document).ready(function () {
                 });
             })
             .always(() => {
-                // Kembalikan tombol jadi aktif (penting jika login gagal)
                 btn.prop('disabled', false).text(originalText);
             });
     });
 
-    // REGISTER HANDLE
     $('#form-register').submit(function (e) {
         e.preventDefault();
         const btn = $(this).find('button');
@@ -138,7 +128,6 @@ $(document).ready(function () {
             .always(() => btn.prop('disabled', false).text(originalText));
     });
 
-    // --- MOBILE UX ---
     $('#mobile-inv-toggle').click(function () {
         if ($(window).width() < 1024) {
             $('#inventory-list-wrapper').slideToggle(200);
@@ -146,7 +135,7 @@ $(document).ready(function () {
         }
     });
 
-    // --- DATA LOADING ---
+
     function loadMasterData() {
         apiRequest('/suppliers').done(function (suppliers) {
             const $select = $('#input-supplier').html('<option value="">-- Pilih Supplier --</option>');
@@ -207,7 +196,6 @@ $(document).ready(function () {
     $('#input-search-mobile').on('input', function () { handleSearch($(this).val().toLowerCase()); });
     $('#btn-refresh').click(loadMasterData);
 
-    // --- SELECTION ---
     window.selectItemFromSidebar = function (id) {
         const item = itemsCache.find(i => i.id == id);
         if (!item) return;
@@ -238,7 +226,7 @@ $(document).ready(function () {
         }
     });
 
-    // --- CART ---
+
     $('#btn-add-cart').click(function () {
         const supplierId = $('#input-supplier').val();
         const itemId = $('#input-item').val();
@@ -329,7 +317,6 @@ $(document).ready(function () {
         if (tableContainer.length) tableContainer.scrollTop(tableContainer[0].scrollHeight);
     }
 
-    // --- SUBMIT ---
     $('#btn-submit-order').click(function () {
         const supplierId = $('#input-supplier').val();
         const btn = $(this);

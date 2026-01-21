@@ -14,7 +14,6 @@ func Protected() fiber.Handler {
 		if authHeader == "" {
 			return c.Status(401).JSON(fiber.Map{"error": "Missing authorization header"})
 		}
-		// Code revisi (Safe)
 		parts := strings.Split(authHeader, "Bearer ")
 		if len(parts) != 2 {
 			return c.Status(401).JSON(fiber.Map{"error": "Invalid token format"})

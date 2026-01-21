@@ -15,7 +15,6 @@ func main() {
 
 	database.ConnectDB()
 
-	// Seed Suppliers
 	suppliers := []models.Supplier{
 		{Name: "Global Tech", Email: "contact@globaltech.com", Address: "Jakarta"},
 		{Name: "Indo Mandiri", Email: "sales@indomandiri.com", Address: "Bandung"},
@@ -25,7 +24,6 @@ func main() {
 		database.DB.FirstOrCreate(&s, models.Supplier{Email: s.Email})
 	}
 
-	// Seed Items
 	items := []models.Item{
 		{Name: "MacBook Pro", Stock: 10, Price: 25000000},
 		{Name: "Dell XPS 13", Stock: 5, Price: 18000000},

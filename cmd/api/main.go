@@ -21,29 +21,24 @@ func main() {
 
 	app := fiber.New()
 
-	// app.Use(cors.New())
 	app.Use(cors.New())
 
-	// Auth routes
 	api := app.Group("/api")
 	api.Post("/register", handlers.Register)
 	api.Post("/login", handlers.Login)
 
-	// Protected routes
 	protected := api.Group("", middleware.Protected())
 
-	// Master Data
 	protected.Get("/suppliers", handlers.GetSuppliers)
 	protected.Post("/suppliers", handlers.CreateSupplier)
-	protected.Put("/suppliers/:id", handlers.UpdateSupplier)    // <--- BARU
-	protected.Delete("/suppliers/:id", handlers.DeleteSupplier) // <--- BARU
+	protected.Put("/suppliers/:id", handlers.UpdateSupplier)
+	protected.Delete("/suppliers/:id", handlers.DeleteSupplier)
 
 	protected.Get("/items", handlers.GetItems)
 	protected.Post("/items", handlers.CreateItem)
-	protected.Put("/items/:id", handlers.UpdateItem)    // <--- BARU
-	protected.Delete("/items/:id", handlers.DeleteItem) // <--- BARU
+	protected.Put("/items/:id", handlers.UpdateItem)
+	protected.Delete("/items/:id", handlers.DeleteItem)
 
-	// Transactions
 	protected.Post("/purchase", handlers.CreatePurchase)
 
 	port := os.Getenv("PORT")

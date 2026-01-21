@@ -28,7 +28,6 @@ func ConnectDB() {
 
 	fmt.Println("Database connection successful")
 
-	// Automigrate
 	db.AutoMigrate(&models.User{}, &models.Supplier{}, &models.Item{}, &models.Purchasing{}, &models.PurchasingDetail{})
 
 	DB = db

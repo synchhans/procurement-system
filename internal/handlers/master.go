@@ -6,7 +6,6 @@ import (
 	"github.com/synchhans/procurement-system/internal/models"
 )
 
-// Supplier Handlers
 func GetSuppliers(c *fiber.Ctx) error {
 	var suppliers []models.Supplier
 	database.DB.Find(&suppliers)
@@ -22,7 +21,6 @@ func CreateSupplier(c *fiber.Ctx) error {
 	return c.Status(201).JSON(supplier)
 }
 
-// Item Handlers
 func GetItems(c *fiber.Ctx) error {
 	var items []models.Item
 	database.DB.Find(&items)

@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Procurement System</title>
 
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -65,8 +64,6 @@
 
 <body class="bg-slate-100 text-slate-800 min-h-screen lg:h-screen w-full lg:overflow-hidden flex flex-col">
 
-    <!-- 1. PRELOADER (Fix UI Flickering) -->
-    <!-- Default visible, menutupi seluruh layar sampai JS siap -->
     <div id="app-preloader" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center">
         <div class="relative flex justify-center items-center">
             <div class="absolute animate-ping inline-flex h-12 w-12 rounded-full bg-blue-400 opacity-75"></div>
@@ -77,7 +74,6 @@
         <p class="mt-4 text-slate-500 font-medium animate-pulse text-sm">Memuat Sistem...</p>
     </div>
 
-    <!-- NAVBAR -->
     <nav class="bg-white shadow-sm border-b border-slate-200 flex-none z-50 sticky top-0 lg:relative">
         <div class="px-4 lg:px-6 h-16 flex justify-between items-center">
             <div class="flex items-center gap-2 text-primary">
@@ -101,11 +97,9 @@
         </div>
     </nav>
 
-    <!-- AUTH WRAPPER (Hidden by default) -->
     <div id="auth-container" class="hidden-force fixed inset-0 z-[60] bg-slate-100 overflow-y-auto">
         <div class="flex min-h-full items-center justify-center p-4">
 
-            <!-- Login Form -->
             <div id="view-login"
                 class="bg-white p-6 lg:p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-200 hidden-force">
                 <div class="text-center mb-6">
@@ -132,7 +126,6 @@
                 </div>
             </div>
 
-            <!-- Register Form -->
             <div id="view-register"
                 class="bg-white p-6 lg:p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-200 hidden-force">
                 <div class="text-center mb-6">
@@ -158,10 +151,8 @@
         </div>
     </div>
 
-    <!-- MAIN APP LAYOUT (Hidden by default) -->
     <div id="view-dashboard" class="flex-grow flex flex-col lg:flex-row lg:overflow-hidden hidden-force">
 
-        <!-- SIDEBAR -->
         <aside
             class="w-full lg:w-1/3 lg:min-w-[320px] lg:max-w-[400px] bg-white border-b lg:border-b-0 lg:border-r border-slate-200 flex flex-col z-20 shadow-sm lg:shadow-lg transition-all">
             <div class="p-4 border-b border-slate-100 bg-slate-50 flex-none flex justify-between items-center cursor-pointer lg:cursor-default"
@@ -211,11 +202,9 @@
             </div>
         </aside>
 
-        <!-- MAIN CONTENT -->
         <main class="flex-grow flex flex-col h-full bg-slate-50 relative lg:overflow-hidden">
             <div class="flex-grow overflow-y-auto p-4 lg:p-6 pb-24 lg:pb-6">
                 <div class="max-w-4xl mx-auto space-y-4 lg:space-y-6">
-                    <!-- Header Form -->
                     <div class="bg-white p-4 lg:p-6 rounded-xl shadow-sm border border-slate-200">
                         <div class="flex items-center justify-between mb-4">
                             <h2 class="text-lg font-bold text-slate-800 flex items-center">
@@ -261,7 +250,6 @@
                         </div>
                     </div>
 
-                    <!-- Item Input & Table -->
                     <div class="bg-white p-4 lg:p-6 rounded-xl shadow-sm border border-slate-200">
                         <div
                             class="flex flex-col md:flex-row gap-3 items-end mb-6 bg-slate-50 p-3 lg:p-4 rounded-xl border border-slate-100">
@@ -321,7 +309,6 @@
                 </div>
             </div>
 
-            <!-- Sticky Bottom Action Bar -->
             <div
                 class="flex-none bg-white p-4 border-t border-slate-200 flex justify-between items-center z-30 sticky bottom-0 lg:relative shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] lg:shadow-none">
                 <button id="btn-clear-cart"
@@ -342,7 +329,6 @@
         </main>
     </div>
 
-    <!-- Script Libraries -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/app.js"></script>

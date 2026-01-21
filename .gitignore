@@ -1,0 +1,6 @@
+.env
+
+*.exe
+*.dll
+main
+procurement-system

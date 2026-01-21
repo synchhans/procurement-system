@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Procurement System</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#475569',
+                        success: '#16a34a',
+                        danger: '#dc2626'
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @media (min-width: 1024px) {
+            ::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: #f1f5f9;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background-color: #cbd5e1;
+                border-radius: 10px;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background-color: #94a3b8;
+            }
+        }
+
+        .hidden-force {
+            display: none !important;
+        }
+
+        .mobile-transition {
+            transition: max-height 0.3s ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100 text-slate-800 min-h-screen lg:h-screen w-full lg:overflow-hidden flex flex-col">
+
+    <!-- 1. PRELOADER (Fix UI Flickering) -->
+    <!-- Default visible, menutupi seluruh layar sampai JS siap -->
+    <div id="app-preloader" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center">
+        <div class="relative flex justify-center items-center">
+            <div class="absolute animate-ping inline-flex h-12 w-12 rounded-full bg-blue-400 opacity-75"></div>
+            <div class="relative inline-flex rounded-full h-12 w-12 bg-primary items-center justify-center">
+                <i class="fas fa-boxes text-white text-xl"></i>
+            </div>
+        </div>
+        <p class="mt-4 text-slate-500 font-medium animate-pulse text-sm">Memuat Sistem...</p>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="bg-white shadow-sm border-b border-slate-200 flex-none z-50 sticky top-0 lg:relative">
+        <div class="px-4 lg:px-6 h-16 flex justify-between items-center">
+            <div class="flex items-center gap-2 text-primary">
+                <i class="fas fa-boxes text-xl lg:text-2xl"></i>
+                <div>
+                    <h1 class="font-bold text-lg lg:text-xl leading-none">Procurement<span
+                            class="font-light">System</span></h1>
+                </div>
+            </div>
+
+            <div id="nav-user" class="hidden-force flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <div id="user-display" class="font-semibold text-sm text-slate-700">User</div>
+                    <div class="text-xs text-slate-400">Staff</div>
+                </div>
+                <button id="btn-logout"
+                    class="bg-slate-50 hover:bg-red-50 text-slate-600 hover:text-red-600 w-9 h-9 flex items-center justify-center rounded-lg transition text-sm font-medium border border-slate-200">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- AUTH WRAPPER (Hidden by default) -->
+    <div id="auth-container" class="hidden-force fixed inset-0 z-[60] bg-slate-100 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+
+            <!-- Login Form -->
+            <div id="view-login"
+                class="bg-white p-6 lg:p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-200 hidden-force">
+                <div class="text-center mb-6">
+                    <div
+                        class="bg-blue-50 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3 text-primary text-xl">
+                        <i class="fas fa-user-lock"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800">Login Staff</h2>
+                    <p class="text-slate-500 text-sm">Masuk untuk mengelola data</p>
+                </div>
+                <form id="form-login" class="space-y-4">
+                    <input type="text" id="login-username"
+                        class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-primary outline-none"
+                        placeholder="Username" required>
+                    <input type="password" id="login-password"
+                        class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-primary outline-none"
+                        placeholder="Password" required>
+                    <button type="submit"
+                        class="w-full bg-primary hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition shadow-lg active:scale-95 transform">Masuk</button>
+                </form>
+                <div class="mt-4 text-center text-sm text-slate-500">
+                    Belum punya akun? <a href="#" id="link-to-register"
+                        class="text-primary font-bold hover:underline">Daftar</a>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="view-register"
+                class="bg-white p-6 lg:p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-200 hidden-force">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-success">Register</h2>
+                </div>
+                <form id="form-register" class="space-y-4">
+                    <input type="text" id="reg-username"
+                        class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-success outline-none"
+                        placeholder="Username Baru" required>
+                    <input type="password" id="reg-password"
+                        class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-success outline-none"
+                        placeholder="Password" required>
+                    <button type="submit"
+                        class="w-full bg-success hover:bg-green-700 text-white font-bold py-3 rounded-lg transition shadow-lg active:scale-95 transform">Daftar
+                        Akun</button>
+                </form>
+                <div class="mt-4 text-center text-sm text-slate-500">
+                    Sudah punya akun? <a href="#" id="link-to-login"
+                        class="text-primary font-bold hover:underline">Login</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MAIN APP LAYOUT (Hidden by default) -->
+    <div id="view-dashboard" class="flex-grow flex flex-col lg:flex-row lg:overflow-hidden hidden-force">
+
+        <!-- SIDEBAR -->
+        <aside
+            class="w-full lg:w-1/3 lg:min-w-[320px] lg:max-w-[400px] bg-white border-b lg:border-b-0 lg:border-r border-slate-200 flex flex-col z-20 shadow-sm lg:shadow-lg transition-all">
+            <div class="p-4 border-b border-slate-100 bg-slate-50 flex-none flex justify-between items-center cursor-pointer lg:cursor-default"
+                id="mobile-inv-toggle">
+                <div>
+                    <h3 class="font-bold text-slate-700 flex items-center">
+                        <i class="fas fa-warehouse text-primary mr-2"></i>
+                        Inventory Gudang
+                        <span class="lg:hidden text-xs bg-blue-100 text-primary px-2 py-0.5 rounded-full ml-2"
+                            id="mobile-badge-count">0</span>
+                    </h3>
+                </div>
+                <div class="lg:hidden text-slate-400 transform transition-transform" id="mobile-inv-chevron">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <button id="btn-refresh" class="hidden lg:block text-slate-400 hover:text-primary transition"
+                    title="Refresh Data"><i class="fas fa-sync-alt"></i></button>
+            </div>
+
+            <div class="p-3 bg-white border-b border-slate-100 lg:block hidden" id="inv-search-container">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-3 text-slate-400"></i>
+                    <input type="text" id="input-search"
+                        class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm"
+                        placeholder="Cari barang...">
+                </div>
+            </div>
+
+            <div class="lg:flex-grow lg:overflow-y-auto bg-slate-50 lg:bg-white hidden lg:block"
+                id="inventory-list-wrapper">
+                <div class="p-3 lg:hidden bg-white border-b border-slate-100 sticky top-0 z-10">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-3 text-slate-400"></i>
+                        <input type="text" id="input-search-mobile"
+                            class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm"
+                            placeholder="Cari barang...">
+                    </div>
+                </div>
+
+                <ul id="list-items"
+                    class="p-2 space-y-2 lg:h-full h-[300px] overflow-y-auto lg:h-auto lg:overflow-visible">
+                </ul>
+
+                <div class="p-2 border-t border-slate-100 text-center text-xs text-slate-400 flex-none hidden lg:block">
+                    Total <span id="item-count" class="font-bold text-slate-600">0</span> items
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-grow flex flex-col h-full bg-slate-50 relative lg:overflow-hidden">
+            <div class="flex-grow overflow-y-auto p-4 lg:p-6 pb-24 lg:pb-6">
+                <div class="max-w-4xl mx-auto space-y-4 lg:space-y-6">
+                    <!-- Header Form -->
+                    <div class="bg-white p-4 lg:p-6 rounded-xl shadow-sm border border-slate-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-bold text-slate-800 flex items-center">
+                                <span
+                                    class="bg-blue-100 text-primary w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-sm"><i
+                                        class="fas fa-file-invoice"></i></span>
+                                Buat Order
+                            </h2>
+                            <button id="btn-clear-cart-sm"
+                                class="lg:hidden text-xs text-red-500 font-bold border border-red-200 px-2 py-1 rounded bg-red-50 hidden-force">
+                                <i class="fas fa-trash"></i> Reset
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Supplier
+                                    Tujuan</label>
+                                <div class="relative">
+                                    <select id="input-supplier"
+                                        class="w-full bg-slate-50 border border-slate-200 text-slate-700 py-3 px-3 rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition disabled:opacity-60 disabled:cursor-not-allowed appearance-none">
+                                        <option value="">-- Pilih Supplier --</option>
+                                    </select>
+                                    <div
+                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
+                                        <i class="fas fa-chevron-down text-xs"></i>
+                                    </div>
+                                </div>
+                                <p id="supplier-lock-msg" class="text-xs text-orange-500 mt-1 hidden-force"><i
+                                        class="fas fa-lock mr-1"></i> Terkunci</p>
+                            </div>
+
+                            <div id="info-box" class="hidden-force bg-blue-50 border border-blue-100 rounded-lg p-3">
+                                <div class="text-xs text-slate-400 uppercase font-bold mb-1">Barang Terpilih</div>
+                                <div class="font-bold text-slate-800 truncate text-sm" id="info-name">-</div>
+                                <div class="flex justify-between mt-1 items-center">
+                                    <span
+                                        class="text-xs text-slate-500 bg-white px-2 py-0.5 rounded border border-blue-100">Stok:
+                                        <b id="info-stock">0</b></span>
+                                    <span class="text-sm text-primary font-bold" id="info-price">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item Input & Table -->
+                    <div class="bg-white p-4 lg:p-6 rounded-xl shadow-sm border border-slate-200">
+                        <div
+                            class="flex flex-col md:flex-row gap-3 items-end mb-6 bg-slate-50 p-3 lg:p-4 rounded-xl border border-slate-100">
+                            <div class="w-full">
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Barang (Pilih
+                                    Cepat)</label>
+                                <div class="relative">
+                                    <select id="input-item"
+                                        class="w-full bg-white border border-slate-200 text-slate-700 py-2.5 px-3 rounded-lg focus:ring-2 focus:ring-primary/20 outline-none appearance-none">
+                                        <option value="">-- Klik barang Cepat --</option>
+                                    </select>
+                                    <div
+                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
+                                        <i class="fas fa-chevron-down text-xs"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 w-full md:w-auto">
+                                <div class="w-1/2 md:w-24">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Qty</label>
+                                    <input type="number" id="input-qty"
+                                        class="w-full bg-white border border-slate-200 text-center py-2.5 px-1 rounded-lg focus:ring-2 focus:ring-primary/20 outline-none"
+                                        value="1" min="1">
+                                </div>
+                                <button id="btn-add-cart"
+                                    class="w-1/2 md:w-auto bg-secondary hover:bg-slate-700 text-white px-5 py-2.5 rounded-lg font-medium transition shadow-sm active:scale-95 flex items-center justify-center">
+                                    <i class="fas fa-plus mr-2 md:hidden"></i> <span class="md:hidden">Add</span>
+                                    <i class="fas fa-plus hidden md:inline"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="overflow-hidden rounded-lg border border-slate-200">
+                            <div class="overflow-x-auto">
+                                <div class="overflow-y-auto max-h-[300px] lg:max-h-[400px] custom-scroll min-w-[300px]">
+                                    <table class="w-full text-sm text-left relative">
+                                        <thead
+                                            class="bg-slate-50 text-slate-500 font-semibold sticky top-0 z-10 shadow-sm">
+                                            <tr>
+                                                <th class="px-4 py-3 whitespace-nowrap">Barang</th>
+                                                <th class="px-2 py-3 text-center">Qty</th>
+                                                <th class="px-4 py-3 text-right">Subtotal</th>
+                                                <th class="px-4 py-3 text-center">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table-cart-body" class="divide-y divide-slate-100 bg-white"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div id="table-cart-foot"
+                                class="bg-slate-50 border-t border-slate-200 p-4 flex justify-between items-center hidden-force">
+                                <span class="font-bold text-slate-600 text-xs uppercase">Total Estimasi</span>
+                                <span class="font-bold text-primary text-lg" id="label-grand-total">Rp 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sticky Bottom Action Bar -->
+            <div
+                class="flex-none bg-white p-4 border-t border-slate-200 flex justify-between items-center z-30 sticky bottom-0 lg:relative shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] lg:shadow-none">
+                <button id="btn-clear-cart"
+                    class="hidden lg:block text-red-500 hover:text-red-700 font-medium px-4 py-2 rounded-lg hover:bg-red-50 transition disabled:opacity-50"
+                    disabled>
+                    <i class="fas fa-trash-alt mr-2"></i> Reset
+                </button>
+                <button id="btn-clear-cart-mobile"
+                    class="lg:hidden text-red-500 font-medium px-4 py-2 disabled:opacity-50" disabled>
+                    <i class="fas fa-trash-alt text-lg"></i>
+                </button>
+                <button id="btn-submit-order"
+                    class="bg-primary hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-500/30 transition disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95 w-2/3 lg:w-auto text-sm lg:text-base"
+                    disabled>
+                    <i class="fas fa-paper-plane mr-2"></i> Kirim Order
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Script Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

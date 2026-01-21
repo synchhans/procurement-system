@@ -422,10 +422,17 @@ $(document).ready(function () {
                 timer: 1500,
                 heightAuto: false
             });
+
             cart = [];
             renderCart();
+
             $('#input-supplier').val('');
+
+            $('#input-search').val('');
+            $('#input-search-mobile').val('');
+
             loadMasterData();
+
         }).always(() => {
             if (cart.length > 0) btn.prop('disabled', false).html(originalContent);
             else btn.html(originalContent);

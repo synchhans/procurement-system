@@ -30,7 +30,6 @@ $(document).ready(function () {
             $(btnId).prop('disabled', !isValid);
         });
     }
-
     validateForm('#form-login', '#btn-login-submit');
     validateForm('#form-register', '#btn-reg-submit');
 
@@ -64,7 +63,8 @@ $(document).ready(function () {
                         title: 'Sesi Berakhir',
                         text: 'Demi keamanan, silakan login kembali.',
                         timer: 2000,
-                        showConfirmButton: false
+                        showConfirmButton: false,
+                        heightAuto: false
                     }).then(() => doLogout());
                     return;
                 }
@@ -83,7 +83,8 @@ $(document).ready(function () {
                 icon: icon,
                 title: title,
                 text: msg,
-                confirmButtonColor: '#2563eb'
+                confirmButtonColor: '#2563eb',
+                heightAuto: false
             });
         });
     }
@@ -143,7 +144,6 @@ $(document).ready(function () {
         const btn = $(this).find('button[type="submit"]');
         const originalText = btn.text();
 
-        // Tambah spinner icon
         btn.prop('disabled', true).html('<i class="fas fa-circle-notch fa-spin mr-2"></i> Memproses...');
 
         apiRequest('/login', 'POST', {
@@ -159,16 +159,14 @@ $(document).ready(function () {
                     title: 'Login Berhasil',
                     text: 'Mengalihkan ke dashboard...',
                     timer: 1000,
-                    showConfirmButton: false
+                    showConfirmButton: false,
+                    heightAuto: false
                 }).then(() => {
                     window.location.reload();
                 });
             })
             .always(() => {
-                // Jika gagal, kembalikan tombol (tetap disabled sampai user ngetik lagi? 
-                // Atau enabled? Biasanya enabled utk retry, tapi kita validasi ulang input)
                 btn.text(originalText);
-                // Cek lagi validasi agar state tombol benar
                 if ($('#login-username').val() && $('#login-password').val()) {
                     btn.prop('disabled', false);
                 }
@@ -187,7 +185,12 @@ $(document).ready(function () {
             password: $('#reg-password').val()
         })
             .done(() => {
-                Swal.fire('Sukses', 'Akun dibuat. Silakan login.', 'success');
+                Swal.fire({
+                    title: 'Sukses',
+                    text: 'Akun dibuat. Silakan login.',
+                    icon: 'success',
+                    heightAuto: false
+                });
                 $('#link-to-login').click();
             })
             .always(() => {
@@ -295,15 +298,19 @@ $(document).ready(function () {
         }
     });
 
-
     $('#btn-add-cart').click(function () {
         const supplierId = $('#input-supplier').val();
         const itemId = $('#input-item').val();
         const qty = parseInt($('#input-qty').val());
 
-        if (!supplierId) return Swal.fire({ icon: 'warning', title: 'Pilih Supplier', text: 'Tentukan supplier dulu.' });
-        if (!itemId) return Swal.fire({ icon: 'warning', title: 'Pilih Barang' });
-        if (!qty || qty < 1) return Swal.fire({ icon: 'warning', title: 'Qty Salah' });
+        if (!supplierId) return Swal.fire({
+            icon: 'warning',
+            title: 'Pilih Supplier',
+            text: 'Tentukan supplier dulu.',
+            heightAuto: false
+        });
+        if (!itemId) return Swal.fire({ icon: 'warning', title: 'Pilih Barang', heightAuto: false }); // FIX
+        if (!qty || qty < 1) return Swal.fire({ icon: 'warning', title: 'Qty Salah', heightAuto: false }); // FIX
 
         const item = itemsCache.find(i => i.id == itemId);
         const existing = cart.find(c => c.item_id == item.id);
@@ -328,7 +335,8 @@ $(document).ready(function () {
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc2626',
-            confirmButtonText: 'Ya, Reset'
+            confirmButtonText: 'Ya, Reset',
+            heightAuto: false
         }).then((result) => {
             if (result.isConfirmed) {
                 cart = [];
@@ -362,18 +370,29 @@ $(document).ready(function () {
             grandTotal += subtotal;
             $tbody.append(`
                 <tr class="hover:bg-slate-50 transition border-b border-slate-50">
+                    <!-- Col 1: Barang -->
                     <td class="px-4 py-3 align-middle">
-                        <div class="text-slate-700 font-medium">${c.name}</div>
-                        <div class="text-xs text-slate-400 lg:hidden">${formatRp(c.price)} x ${c.qty}</div>
+                        <div class="text-slate-700 font-medium truncate max-w-[150px] lg:max-w-none" title="${c.name}">${c.name}</div>
+                        <!-- Tampilkan info Qty x Harga di HP karena kolom Qty di-hidden -->
+                        <div class="text-xs text-slate-400 lg:hidden mt-1">
+                            <span class="bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-slate-600 font-bold">${c.qty}x</span> 
+                            @ ${formatRp(c.price)}
+                        </div>
                     </td>
+                    
+                    <!-- Col 2: Qty (Desktop Only) - Sesuaikan class dengan Header -->
                     <td class="px-2 py-3 text-center align-middle hidden lg:table-cell">
-                        <span class="bg-slate-100 px-2 py-1 rounded text-xs font-bold text-slate-600">${c.qty}</span>
+                        <span class="bg-slate-100 px-2 py-1 rounded text-xs font-bold text-slate-600 border border-slate-200">${c.qty}</span>
                     </td>
+                    
+                    <!-- Col 3: Subtotal -->
                     <td class="px-4 py-3 text-right font-mono text-xs font-bold text-slate-700 align-middle">
                         ${formatRp(subtotal)}
                     </td>
+                    
+                    <!-- Col 4: Aksi -->
                     <td class="px-4 py-3 text-center align-middle">
-                        <button class="btn-remove text-red-400 hover:text-red-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 transition" data-index="${index}">
+                        <button class="btn-remove text-red-400 hover:text-red-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 transition mx-auto" data-index="${index}">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -397,7 +416,12 @@ $(document).ready(function () {
             supplier_id: parseInt(supplierId),
             items: cart.map(c => ({ item_id: c.item_id, qty: c.qty }))
         }).done(function () {
-            Swal.fire({ icon: 'success', title: 'Order Sukses', timer: 1500 });
+            Swal.fire({
+                icon: 'success',
+                title: 'Order Sukses',
+                timer: 1500,
+                heightAuto: false
+            });
             cart = [];
             renderCart();
             $('#input-supplier').val('');

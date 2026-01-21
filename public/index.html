@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Procurement System</title>
 
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Cpath d='M16 7L24 11V21L16 25L8 21V11L16 7Z' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M8 11L16 15L24 11' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M16 15V25' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -313,17 +317,21 @@
                         <div class="overflow-hidden rounded-lg border border-slate-200">
                             <div class="overflow-x-auto">
                                 <div class="overflow-y-auto max-h-[300px] lg:max-h-[400px] custom-scroll min-w-[300px]">
-                                    <table class="w-full text-sm text-left relative">
+                                    <table class="w-full text-sm text-left relative table-fixed">
                                         <thead
                                             class="bg-slate-50 text-slate-500 font-semibold sticky top-0 z-10 shadow-sm">
                                             <tr>
-                                                <th class="px-4 py-3 whitespace-nowrap">Barang</th>
-                                                <th class="px-2 py-3 text-center">Qty</th>
-                                                <th class="px-4 py-3 text-right">Subtotal</th>
-                                                <th class="px-4 py-3 text-center">Aksi</th>
+                                                <th class="px-4 py-3 w-auto">Barang</th>
+
+                                                <th class="px-2 py-3 text-center w-[15%] hidden lg:table-cell">Qty</th>
+
+                                                <th class="px-4 py-3 text-right w-[25%]">Subtotal</th>
+
+                                                <th class="px-4 py-3 text-center w-[50px] lg:w-[10%]">Aksi</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="table-cart-body" class="divide-y divide-slate-100 bg-white"></tbody>
+                                        <tbody id="table-cart-body" class="divide-y divide-slate-100 bg-white">
+                                        </tbody>
                                     </table>
                                 </div>
                             </div>

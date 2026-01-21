@@ -59,6 +59,12 @@
         .mobile-transition {
             transition: max-height 0.3s ease-in-out;
         }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
     </style>
 </head>
 
@@ -111,14 +117,26 @@
                     <p class="text-slate-500 text-sm">Masuk untuk mengelola data</p>
                 </div>
                 <form id="form-login" class="space-y-4">
-                    <input type="text" id="login-username"
-                        class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-primary outline-none"
-                        placeholder="Username" required>
-                    <input type="password" id="login-password"
-                        class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-primary outline-none"
-                        placeholder="Password" required>
-                    <button type="submit"
-                        class="w-full bg-primary hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition shadow-lg active:scale-95 transform">Masuk</button>
+                    <div>
+                        <input type="text" id="login-username"
+                            class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-primary outline-none transition"
+                            placeholder="Username" required>
+                    </div>
+                    <div class="relative">
+                        <input type="password" id="login-password"
+                            class="w-full px-4 py-3 pr-12 rounded-lg border border-slate-300 focus:ring-2 focus:ring-primary outline-none transition"
+                            placeholder="Password" required>
+                        <button type="button"
+                            class="btn-toggle-pass absolute inset-y-0 right-0 px-3 text-slate-400 hover:text-primary transition"
+                            data-target="#login-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <button type="submit" id="btn-login-submit"
+                        class="w-full bg-primary hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition shadow-lg active:scale-95 transform disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+                        disabled>
+                        Masuk
+                    </button>
                 </form>
                 <div class="mt-4 text-center text-sm text-slate-500">
                     Belum punya akun? <a href="#" id="link-to-register"
@@ -132,15 +150,26 @@
                     <h2 class="text-2xl font-bold text-success">Register</h2>
                 </div>
                 <form id="form-register" class="space-y-4">
-                    <input type="text" id="reg-username"
-                        class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-success outline-none"
-                        placeholder="Username Baru" required>
-                    <input type="password" id="reg-password"
-                        class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-success outline-none"
-                        placeholder="Password" required>
-                    <button type="submit"
-                        class="w-full bg-success hover:bg-green-700 text-white font-bold py-3 rounded-lg transition shadow-lg active:scale-95 transform">Daftar
-                        Akun</button>
+                    <div>
+                        <input type="text" id="reg-username"
+                            class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-success outline-none transition"
+                            placeholder="Username Baru" required>
+                    </div>
+                    <div class="relative">
+                        <input type="password" id="reg-password"
+                            class="w-full px-4 py-3 pr-12 rounded-lg border border-slate-300 focus:ring-2 focus:ring-success outline-none transition"
+                            placeholder="Password" required>
+                        <button type="button"
+                            class="btn-toggle-pass absolute inset-y-0 right-0 px-3 text-slate-400 hover:text-success transition"
+                            data-target="#reg-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <button type="submit" id="btn-reg-submit"
+                        class="w-full bg-success hover:bg-green-700 text-white font-bold py-3 rounded-lg transition shadow-lg active:scale-95 transform disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+                        disabled>
+                        Daftar Akun
+                    </button>
                 </form>
                 <div class="mt-4 text-center text-sm text-slate-500">
                     Sudah punya akun? <a href="#" id="link-to-login"
@@ -193,8 +222,7 @@
                 </div>
 
                 <ul id="list-items"
-                    class="p-2 space-y-2 lg:h-full h-[300px] overflow-y-auto lg:h-auto lg:overflow-visible">
-                </ul>
+                    class="p-2 space-y-2 lg:h-full h-[300px] overflow-y-auto lg:h-auto lg:overflow-visible"></ul>
 
                 <div class="p-2 border-t border-slate-100 text-center text-xs text-slate-400 flex-none hidden lg:block">
                     Total <span id="item-count" class="font-bold text-slate-600">0</span> items
@@ -225,7 +253,7 @@
                                     Tujuan</label>
                                 <div class="relative">
                                     <select id="input-supplier"
-                                        class="w-full bg-slate-50 border border-slate-200 text-slate-700 py-3 px-3 rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition disabled:opacity-60 disabled:cursor-not-allowed appearance-none">
+                                        class="w-full bg-slate-50 border border-slate-200 text-slate-700 py-3 px-3 rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition disabled:opacity-60 disabled:cursor-not-allowed appearance-none cursor-pointer">
                                         <option value="">-- Pilih Supplier --</option>
                                     </select>
                                     <div
@@ -258,7 +286,7 @@
                                     Cepat)</label>
                                 <div class="relative">
                                     <select id="input-item"
-                                        class="w-full bg-white border border-slate-200 text-slate-700 py-2.5 px-3 rounded-lg focus:ring-2 focus:ring-primary/20 outline-none appearance-none">
+                                        class="w-full bg-white border border-slate-200 text-slate-700 py-2.5 px-3 rounded-lg focus:ring-2 focus:ring-primary/20 outline-none appearance-none cursor-pointer">
                                         <option value="">-- Klik barang Cepat --</option>
                                     </select>
                                     <div
@@ -312,12 +340,13 @@
             <div
                 class="flex-none bg-white p-4 border-t border-slate-200 flex justify-between items-center z-30 sticky bottom-0 lg:relative shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] lg:shadow-none">
                 <button id="btn-clear-cart"
-                    class="hidden lg:block text-red-500 hover:text-red-700 font-medium px-4 py-2 rounded-lg hover:bg-red-50 transition disabled:opacity-50"
+                    class="hidden lg:block text-red-500 hover:text-red-700 font-medium px-4 py-2 rounded-lg hover:bg-red-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled>
                     <i class="fas fa-trash-alt mr-2"></i> Reset
                 </button>
                 <button id="btn-clear-cart-mobile"
-                    class="lg:hidden text-red-500 font-medium px-4 py-2 disabled:opacity-50" disabled>
+                    class="lg:hidden text-red-500 font-medium px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled>
                     <i class="fas fa-trash-alt text-lg"></i>
                 </button>
                 <button id="btn-submit-order"

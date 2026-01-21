@@ -13,17 +13,21 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found")
+		log.Println("[INFO] File .env tidak ditemukan, menggunakan environment system.")
+	} else {
+		log.Println("[INFO] Konfigurasi .env berhasil dimuat.")
 	}
 
 	database.ConnectDB()
 
 	app := fiber.New()
-
 	app.Use(cors.New())
 
 	api := app.Group("/api")
+
 	api.Post("/register", handlers.Register)
 	api.Post("/login", handlers.Login)
 
@@ -45,6 +49,9 @@ func main() {
 	if port == "" {
 		port = "3000"
 	}
+
+	log.Printf("[INFO] Server Procurement berjalan di port :%s", port)
+	log.Printf("[INFO] Siap menerima request...")
 
 	log.Fatal(app.Listen(":" + port))
 }

@@ -31,4 +31,26 @@ func ConnectDB() {
 	db.AutoMigrate(&models.User{}, &models.Supplier{}, &models.Item{}, &models.Purchasing{}, &models.PurchasingDetail{})
 
 	DB = db
+
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("[FATAL] Gagal terhubung ke Database: %v", err)
+	}
+
+	log.Println("[SUKSES] Terhubung ke Database PostgreSQL.")
+
+	log.Println("[INFO] Menjalankan migrasi database...")
+	err = DB.AutoMigrate(
+		&models.User{},
+		&models.Supplier{},
+		&models.Item{},
+		&models.Purchasing{},
+		&models.PurchasingDetail{},
+	)
+
+	if err != nil {
+		log.Printf("[ERROR] Gagal migrasi: %v", err)
+	} else {
+		log.Println("[SUKSES] Struktur database sinkron.")
+	}
 }

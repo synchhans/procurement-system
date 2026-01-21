@@ -5,6 +5,36 @@ $(document).ready(function () {
 
     const formatRp = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
+    $('.btn-toggle-pass').click(function () {
+        const inputId = $(this).data('target');
+        const input = $(inputId);
+        const icon = $(this).find('i');
+
+        if (input.attr('type') === 'password') {
+            input.attr('type', 'text');
+            icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+            input.attr('type', 'password');
+            icon.removeClass('fa-eye-slash').addClass('fa-eye');
+        }
+    });
+
+    function validateForm(formId, btnId) {
+        $(formId).on('input change', 'input', function () {
+            let isValid = true;
+            $(formId).find('input[required]').each(function () {
+                if ($(this).val().trim() === '') {
+                    isValid = false;
+                }
+            });
+            $(btnId).prop('disabled', !isValid);
+        });
+    }
+
+    validateForm('#form-login', '#btn-login-submit');
+    validateForm('#form-register', '#btn-reg-submit');
+
+
     function apiRequest(endpoint, method = 'GET', data = null) {
         const token = sessionStorage.getItem('jwt_token');
 
@@ -15,31 +45,43 @@ $(document).ready(function () {
             data: data ? JSON.stringify(data) : null,
             headers: { 'Authorization': token ? `Bearer ${token}` : '' },
         }).fail(function (xhr) {
-            let msg = "Terjadi kesalahan sistem.";
-            if (xhr.responseJSON && xhr.responseJSON.error) {
-                msg = xhr.responseJSON.error;
-            }
-
-            if (xhr.status === 401 && endpoint !== '/login') {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Sesi Habis',
-                    text: 'Silakan login kembali.',
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
-                    doLogout();
-                });
-                return;
-            }
+            let title = "Terjadi Kesalahan";
+            let msg = "Mohon maaf, terjadi kesalahan pada sistem.";
+            let icon = "error";
 
             if (xhr.status === 0) {
-                msg = "Gagal terhubung ke Backend (Server Mati).";
+                title = "Gagal Terhubung";
+                msg = "Tidak dapat menghubungi Server. Pastikan koneksi internet Anda stabil.";
+                icon = "warning";
+            }
+            else if (xhr.status === 401) {
+                if (endpoint === '/login') {
+                    title = "Gagal Masuk";
+                    msg = xhr.responseJSON?.error || "Username atau Password salah.";
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Sesi Berakhir',
+                        text: 'Demi keamanan, silakan login kembali.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => doLogout());
+                    return;
+                }
+            }
+            else if (xhr.status === 400) {
+                title = "Data Tidak Valid";
+                msg = xhr.responseJSON?.error || "Mohon periksa input Anda kembali.";
+                icon = "warning";
+            }
+            else if (xhr.status === 500) {
+                title = "Gangguan Server";
+                msg = "Terjadi masalah di sisi server kami. Tim teknis akan segera menanganinya.";
             }
 
             Swal.fire({
-                icon: 'error',
-                title: 'Gagal',
+                icon: icon,
+                title: title,
                 text: msg,
                 confirmButtonColor: '#2563eb'
             });
@@ -61,8 +103,9 @@ $(document).ready(function () {
         } else {
             $('#auth-container').removeClass('hidden-force');
             $('#view-login').removeClass('hidden-force');
+            $('#form-login')[0].reset();
+            $('#btn-login-submit').prop('disabled', true);
         }
-
 
         setTimeout(() => {
             $('#app-preloader').fadeOut(300, function () {
@@ -78,15 +121,30 @@ $(document).ready(function () {
     }
 
     $('#btn-logout').click(doLogout);
-    $('#link-to-register').click(e => { e.preventDefault(); $('#view-login').addClass('hidden-force'); $('#view-register').removeClass('hidden-force'); });
-    $('#link-to-login').click(e => { e.preventDefault(); $('#view-register').addClass('hidden-force'); $('#view-login').removeClass('hidden-force'); });
+
+    $('#link-to-register').click(e => {
+        e.preventDefault();
+        $('#view-login').addClass('hidden-force');
+        $('#view-register').removeClass('hidden-force');
+        $('#form-register')[0].reset();
+        $('#btn-reg-submit').prop('disabled', true);
+    });
+
+    $('#link-to-login').click(e => {
+        e.preventDefault();
+        $('#view-register').addClass('hidden-force');
+        $('#view-login').removeClass('hidden-force');
+        $('#form-login')[0].reset();
+        $('#btn-login-submit').prop('disabled', true);
+    });
 
     $('#form-login').submit(function (e) {
         e.preventDefault();
-        const btn = $(this).find('button');
+        const btn = $(this).find('button[type="submit"]');
         const originalText = btn.text();
 
-        btn.prop('disabled', true).text('Memproses...');
+        // Tambah spinner icon
+        btn.prop('disabled', true).html('<i class="fas fa-circle-notch fa-spin mr-2"></i> Memproses...');
 
         apiRequest('/login', 'POST', {
             username: $('#login-username').val(),
@@ -107,15 +165,22 @@ $(document).ready(function () {
                 });
             })
             .always(() => {
-                btn.prop('disabled', false).text(originalText);
+                // Jika gagal, kembalikan tombol (tetap disabled sampai user ngetik lagi? 
+                // Atau enabled? Biasanya enabled utk retry, tapi kita validasi ulang input)
+                btn.text(originalText);
+                // Cek lagi validasi agar state tombol benar
+                if ($('#login-username').val() && $('#login-password').val()) {
+                    btn.prop('disabled', false);
+                }
             });
     });
 
     $('#form-register').submit(function (e) {
         e.preventDefault();
-        const btn = $(this).find('button');
+        const btn = $(this).find('button[type="submit"]');
         const originalText = btn.text();
-        btn.prop('disabled', true).text('Memproses...');
+
+        btn.prop('disabled', true).html('<i class="fas fa-circle-notch fa-spin mr-2"></i> Memproses...');
 
         apiRequest('/register', 'POST', {
             username: $('#reg-username').val(),
@@ -125,7 +190,12 @@ $(document).ready(function () {
                 Swal.fire('Sukses', 'Akun dibuat. Silakan login.', 'success');
                 $('#link-to-login').click();
             })
-            .always(() => btn.prop('disabled', false).text(originalText));
+            .always(() => {
+                btn.text(originalText);
+                if ($('#reg-username').val() && $('#reg-password').val()) {
+                    btn.prop('disabled', false);
+                }
+            });
     });
 
     $('#mobile-inv-toggle').click(function () {
@@ -134,7 +204,6 @@ $(document).ready(function () {
             $('#mobile-inv-chevron').toggleClass('rotate-180');
         }
     });
-
 
     function loadMasterData() {
         apiRequest('/suppliers').done(function (suppliers) {

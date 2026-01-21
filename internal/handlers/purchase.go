@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -32,6 +33,8 @@ func CreatePurchase(c *fiber.Ctx) error {
 
 	var grandTotal float64
 	var purchasing models.Purchasing
+
+	log.Printf("[ORDER] Memulai transaksi baru oleh User ID: %d", userID)
 
 	err := database.DB.Transaction(func(tx *gorm.DB) error {
 		purchasing.SupplierID = input.SupplierID
@@ -80,8 +83,11 @@ func CreatePurchase(c *fiber.Ctx) error {
 	})
 
 	if err != nil {
+		log.Printf("[ERROR] Transaksi Gagal & Rollback: %v", err)
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
+
+	log.Printf("[SUKSES] Transaksi ID %s berhasil disimpan. Total: %.2f", purchasing.ID, purchasing.GrandTotal)
 
 	database.DB.Preload("User").Preload("Supplier").Preload("Details.Item").First(&purchasing, purchasing.ID)
 
@@ -92,43 +98,27 @@ func CreatePurchase(c *fiber.Ctx) error {
 
 func sendWebhook(data interface{}) {
 	webhookURL := os.Getenv("WEBHOOK_URL")
-
-	fmt.Println("\n--- WEBHOOK DEBUG START ---")
-	fmt.Println("Target URL:", webhookURL)
-
 	if webhookURL == "" {
-		fmt.Println("ERROR: WEBHOOK_URL is empty or not loaded from .env")
-		fmt.Println("--- WEBHOOK DEBUG END ---")
+		log.Println("[WEBHOOK] URL kosong, melewati pengiriman webhook.")
 		return
 	}
 
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		fmt.Println("ERROR JSON Marshal:", err)
-		return
-	}
+	log.Printf("[WEBHOOK] Mengirim data ke: %s...", webhookURL)
 
-	client := &http.Client{
-		Timeout: 10 * time.Second,
-	}
+	jsonData, _ := json.Marshal(data)
+	client := &http.Client{Timeout: 30 * time.Second}
 
-	req, err := http.NewRequest("POST", webhookURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		fmt.Println("ERROR Creating Request:", err)
-		return
-	}
+	req, _ := http.NewRequest("POST", webhookURL, bytes.NewBuffer(jsonData))
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println("ERROR Sending Request:", err)
-		fmt.Println("--- WEBHOOK DEBUG END ---")
+		log.Printf("[WEBHOOK] Gagal mengirim: %v", err)
 		return
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("Webhook Response Status:", resp.Status)
-	fmt.Println("--- WEBHOOK DEBUG END ---")
+	log.Printf("[WEBHOOK] Terkirim! Status Server: %s", resp.Status)
 }
 
 func UpdateItem(c *fiber.Ctx) error {

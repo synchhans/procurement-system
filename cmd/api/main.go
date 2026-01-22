@@ -26,6 +26,8 @@ func main() {
 	app := fiber.New()
 	app.Use(cors.New())
 
+	app.Static("/", "./public")
+
 	api := app.Group("/api")
 
 	api.Post("/register", handlers.Register)
